@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import datetime
+
 from .summarizer import generate_summary
 from .transcript import Transcript
 
@@ -17,7 +19,21 @@ def format_timestamped(transcript: Transcript) -> str:
 
 
 def format_markdown(transcript: Transcript) -> str:
-    """Markdown document with an AI summary header and plain-text body."""
+    """Markdown document: AI-generated frontmatter + summary, then full transcript."""
+    today = datetime.date.today().isoformat()
+    summary = generate_summary(transcript.plain_text, transcript.video_id, today)
+
+    full_transcript_section = (
+        "\n\n---\n\n"
+        "## Full Transcript\n\n"
+        f"*Language: {transcript.language} — {transcript.word_count:,} words*\n\n"
+        + transcript.plain_text
+    )
+
+    if summary:
+        return summary + full_transcript_section
+
+    # Fallback when no API key is available
     header = (
         f"# YouTube Transcript\n\n"
         f"**Video ID:** `{transcript.video_id}`  \n"
@@ -25,16 +41,7 @@ def format_markdown(transcript: Transcript) -> str:
         f"**Words:** {transcript.word_count:,}\n\n"
         f"---\n\n"
     )
-
-    summary = generate_summary(transcript.plain_text)
-    if summary:
-        summary_block = summary + "\n\n---\n\n"
-    else:
-        summary_block = ""
-
-    full_transcript_section = "## Full Transcript\n\n" + transcript.plain_text
-
-    return header + summary_block + full_transcript_section
+    return header + full_transcript_section
 
 
 def format_srt(transcript: Transcript) -> str:
