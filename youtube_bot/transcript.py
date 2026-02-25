@@ -136,7 +136,7 @@ class TranscriptFetcher:
         video_id = extract_video_id(url)
 
         try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            transcript_list = YouTubeTranscriptApi().list_transcripts(video_id)
         except VideoUnavailable as exc:
             raise VideoUnavailable(video_id) from exc
         except TranscriptsDisabled as exc:
@@ -147,9 +147,9 @@ class TranscriptFetcher:
 
         segments = [
             TranscriptSegment(
-                text=entry.get("text", ""),
-                start=entry.get("start", 0.0),
-                duration=entry.get("duration", 0.0),
+                text=entry.text if hasattr(entry, "text") else entry.get("text", ""),
+                start=entry.start if hasattr(entry, "start") else entry.get("start", 0.0),
+                duration=entry.duration if hasattr(entry, "duration") else entry.get("duration", 0.0),
             )
             for entry in raw
         ]
