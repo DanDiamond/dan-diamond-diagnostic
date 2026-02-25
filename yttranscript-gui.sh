@@ -1,37 +1,26 @@
 #!/bin/bash
 # yttranscript-gui.sh
-# Run this from macOS Shortcuts (or double-click) to fetch a YouTube transcript
-# with GUI prompts for URL and output filename.
+# Called from macOS Shortcuts with two arguments: URL and filename.
+# The Shortcut uses native "Ask for Input" actions (which support paste).
+#
+# Usage: yttranscript-gui.sh <youtube-url> <filename>
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+URL="$1"
+FILENAME="$2"
+
+SCRIPT_DIR="/Users/danieldiamond/dan-diamond-diagnostic"
 PYTHON="$SCRIPT_DIR/venv/bin/python3"
 
-# ── 1. Ask for the YouTube URL ────────────────────────────────────────────────
-URL=$(osascript <<'EOF'
-  set result to display dialog "Enter YouTube URL:" ¬
-    default answer "" ¬
-    with title "YouTube Transcript" ¬
-    buttons {"Cancel", "Fetch"} default button "Fetch"
-  return text returned of result
-EOF
-)
-[ $? -ne 0 ] || [ -z "$URL" ] && exit 0   # user cancelled
-
-# ── 2. Ask for the output filename ───────────────────────────────────────────
-FILENAME=$(osascript <<'EOF'
-  set result to display dialog "Save transcript as (filename):" ¬
-    default answer "transcript.md" ¬
-    with title "YouTube Transcript" ¬
-    buttons {"Cancel", "Save"} default button "Save"
-  return text returned of result
-EOF
-)
-[ $? -ne 0 ] || [ -z "$FILENAME" ] && exit 0   # user cancelled
+# Validate inputs
+if [ -z "$URL" ] || [ -z "$FILENAME" ]; then
+  osascript -e "display alert \"YouTube Transcript\" message \"URL or filename was empty.\" as critical"
+  exit 1
+fi
 
 # Ensure .md extension
 [[ "$FILENAME" != *.md ]] && FILENAME="${FILENAME}.md"
 
-# ── 3. Fetch the transcript ───────────────────────────────────────────────────
+# Fetch the transcript
 "$PYTHON" "$SCRIPT_DIR/run_youtube_bot.py" fetch "$URL" \
   --format markdown \
   --output "$HOME/Desktop/$FILENAME" 2>&1
