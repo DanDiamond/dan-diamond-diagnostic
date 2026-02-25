@@ -11,6 +11,14 @@ FILENAME="$2"
 SCRIPT_DIR="/Users/danieldiamond/dan-diamond-diagnostic"
 PYTHON="$SCRIPT_DIR/venv/bin/python3"
 
+# Shortcuts doesn't inherit the shell environment, so ANTHROPIC_API_KEY won't
+# be set unless we load it explicitly from the project's .env file.
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+fi
+
 # Shortcuts sometimes passes a URL wrapped in list brackets: ["https://..."] or []
 # Strip the brackets and any surrounding quotes/spaces.
 if [[ "$URL" == \[*\] ]]; then
