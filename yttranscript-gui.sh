@@ -11,6 +11,14 @@ FILENAME="$2"
 SCRIPT_DIR="/Users/danieldiamond/dan-diamond-diagnostic"
 PYTHON="$SCRIPT_DIR/venv/bin/python3"
 
+# Shortcuts sometimes passes a URL wrapped in list brackets: ["https://..."] or []
+# Strip the brackets and any surrounding quotes/spaces.
+if [[ "$URL" == \[*\] ]]; then
+  URL="${URL:1:${#URL}-2}"   # drop leading [ and trailing ]
+  URL="${URL//\"/}"           # remove quote chars
+  URL="${URL// /}"            # remove spaces
+fi
+
 # Validate inputs
 if [ -z "$URL" ] || [ -z "$FILENAME" ]; then
   osascript -e "display alert \"YouTube Transcript\" message \"URL or filename was empty.\" as critical"
