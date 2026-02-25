@@ -24,7 +24,7 @@ def format_markdown(transcript: Transcript) -> str:
         f"**Words:** {transcript.word_count:,}\n\n"
         f"---\n\n"
     )
-    return header + transcript.timestamped_text
+    return header + transcript.plain_text
 
 
 def format_srt(transcript: Transcript) -> str:
