@@ -21,13 +21,16 @@ fi
 [[ "$FILENAME" != *.md ]] && FILENAME="${FILENAME}.md"
 
 # Fetch the transcript
+OUT_DIR="$HOME/Transcripts"
+mkdir -p "$OUT_DIR"
+
 OUTPUT=$("$PYTHON" "$SCRIPT_DIR/run_youtube_bot.py" fetch "$URL" \
   --format markdown \
-  --output "$HOME/Downloads/$FILENAME" 2>&1)
+  --output "$OUT_DIR/$FILENAME" 2>&1)
 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-  osascript -e "display notification \"Saved to Downloads/$FILENAME\" with title \"YouTube Transcript\" sound name \"Glass\""
+  osascript -e "display notification \"Saved to ~/Transcripts/$FILENAME\" with title \"YouTube Transcript\" sound name \"Glass\""
 else
   osascript -e "display alert \"YouTube Transcript\" message \"${OUTPUT}\" as critical"
 fi
