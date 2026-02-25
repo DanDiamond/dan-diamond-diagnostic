@@ -19,25 +19,26 @@ def generate_summary(plain_text: str) -> str:
 
     client = anthropic.Anthropic(api_key=api_key)
 
-    # Trim to ~8 000 chars so we stay well within token limits for long videos
-    text_snippet = plain_text[:8000]
-
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=1024,
+        max_tokens=4096,
         messages=[
             {
                 "role": "user",
                 "content": (
-                    "Please provide a structured summary of the following YouTube "
+                    "Please provide a thorough, structured summary of the following YouTube "
                     "transcript. Format your response in Markdown with these sections:\n\n"
                     "## Overview\n"
-                    "2-3 sentences describing what the video is about.\n\n"
+                    "3-5 sentences describing what the video is about and its purpose.\n\n"
                     "## Key Topics\n"
-                    "Bullet points of the main subjects covered.\n\n"
+                    "Detailed bullet points of the main subjects covered, with a brief explanation of each.\n\n"
                     "## Main Takeaways\n"
-                    "Bullet points of the most important points or conclusions.\n\n"
-                    f"Transcript:\n{text_snippet}"
+                    "Detailed bullet points of the most important points or conclusions.\n\n"
+                    "## Action Items\n"
+                    "Bullet points of any specific recommendations, steps, or things the viewer should do.\n\n"
+                    "## Notable Quotes\n"
+                    "2-4 direct quotes that best capture the key ideas.\n\n"
+                    f"Transcript:\n{plain_text}"
                 ),
             }
         ],
