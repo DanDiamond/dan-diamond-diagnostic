@@ -165,22 +165,29 @@ class TranscriptFetcher:
     # ------------------------------------------------------------------
 
     def _select_transcript(self, transcript_list):
-        """Pick the best transcript: prefer *preferred_language*, then any
-        manually created one, then first auto-generated."""
-        lang = self.preferred_language
+        """Pick the best transcript: prefer *preferred_language* (default English),
+        then any manually created one, then first auto-generated."""
+        lang = self.preferred_language or "en"
 
-        # 1. Explicit language requested
-        if lang:
-            try:
-                return transcript_list.find_manually_created_transcript([lang])
-            except NoTranscriptFound:
-                pass
-            try:
-                return transcript_list.find_generated_transcript([lang])
-            except NoTranscriptFound:
-                pass
+        # 1. Try manually-created in preferred language
+        try:
+            return transcript_list.find_manually_created_transcript([lang])
+        except NoTranscriptFound:
+            pass
 
-        # 2. Any manually-created transcript (highest quality)
+        # 2. Try auto-generated in preferred language
+        try:
+            return transcript_list.find_generated_transcript([lang])
+        except NoTranscriptFound:
+            pass
+
+        # 3. If a specific language was explicitly requested, give up here
+        if self.preferred_language:
+            raise NoTranscriptFound(
+                f"No transcript found for language: {self.preferred_language}", [], []
+            )
+
+        # 4. Fall back to any manually-created transcript
         try:
             return transcript_list.find_manually_created_transcript(
                 [t.language_code for t in transcript_list]
@@ -188,7 +195,7 @@ class TranscriptFetcher:
         except NoTranscriptFound:
             pass
 
-        # 3. Fall back to auto-generated
+        # 5. Fall back to first available auto-generated
         for t in transcript_list:
             return t
 
