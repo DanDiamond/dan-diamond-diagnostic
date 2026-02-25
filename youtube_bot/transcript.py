@@ -136,7 +136,7 @@ class TranscriptFetcher:
         video_id = extract_video_id(url)
 
         try:
-            transcript_list = YouTubeTranscriptApi().list_transcripts(video_id)
+            transcript_list = YouTubeTranscriptApi().list(video_id)
         except VideoUnavailable as exc:
             raise VideoUnavailable(video_id) from exc
         except TranscriptsDisabled as exc:
